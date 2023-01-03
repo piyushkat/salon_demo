@@ -94,15 +94,12 @@ class Product(models.Model):
 class Cartitems(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,default=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE,null=True)
-    quantity = models.PositiveSmallIntegerField(default=1)
+    quantity = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return '%s %s'%(self.quantity, self.product.name)
-
-   
-    
 
 
 class ReviewRating(models.Model):

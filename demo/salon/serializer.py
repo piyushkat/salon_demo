@@ -6,6 +6,13 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from salon.models import *
 from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 from salon.utils import Util
+from . import google
+from .register import register_social_user
+import os
+from rest_framework.exceptions import AuthenticationFailed
+
+
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     # username = serializers.CharField()
@@ -138,3 +145,35 @@ class AddCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cartitems
         fields = ['id','product_id','quantity']
+
+
+class ViewCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cartitems
+        fields = ['id','user','product_id','quantity']
+
+
+
+class GoogleSocialAuthSerializer(serializers.Serializer):
+    auth_token = serializers.CharField()
+
+    def validate_auth_token(self, auth_token):
+        user_data = google.Google.validate(auth_token)
+        try:
+            user_data['sub']
+        except:
+            raise serializers.ValidationError(
+                'The token is invalid or expired. Please login again.'
+            )
+
+        if user_data['aud'] != os.environ.get('GOOGLE_CLIENT_ID'):
+
+            raise AuthenticationFailed('oops, who are you?')
+
+        user_id = user_data['sub']
+        email = user_data['email']
+        name = user_data['name']
+        provider = 'google'
+
+        return register_social_user(
+            provider=provider, user_id=user_id, email=email, name=name)

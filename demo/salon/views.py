@@ -354,85 +354,84 @@ class test(GenericAPIView):
     return Response({"status": "success"}, status = 200)
 
 
-# class CartViewSet(GenericAPIView):
-#     serializer_class = AddCartSerializer
-#     renderer_classes = [UserRenderer]
-#     def get(self,request,id):
-#       try:
-#         # if not self.request.user.is_authenticated:
-#         #   return Response({"msg":"No user Found"})
-#         queryset = Cart.objects.all().order_by('id')
-#         users = User.objects.get(id=id)
-#         serializer = AddCartSerializer(queryset,many=True)
-#         return Response({"status": "success", "data": serializer.data}, status = 200)
-#       except:
-#         return Response({"status": "User not found"}, status = 200)
 
 
-
-
-# class AddProductCart(GenericAPIView):
-#   serializer_class = CartSerializer
-#   queryset = Cart.objects.all()
-#   renderer_classes = [UserRenderer]
-#   # permission_classes = [IsAuthenticated]
-#   def post(self,request):
-#     if self.request.user.is_authenticated: 
-#       # user_id = request.data.get('user_id')
-#       product = request.data.get('product_id')
-#       print(product)
-#       quantity = int(request.data['quantity'])
-#       print(quantity)
-#       # print(user_id)
-#       # if product.quantity <= 0 or product.quantity-quantity < 0:
-#       #   return Response({"msg":"Not Available"})
-#       # existing_cart_item = Cart.objects.filter().values('product')
-
-#       # print("sff",existing_cart_item)
-#       # if existing_cart_item:
-#       #   existing_cart_item += quantity
-#       #   existing_cart_item.save()
-#       # else:
-#       new_cart_item = Cart(user=request.user,product=product,quantity=quantity)
-#       # new_cart_item.save()
-#       print(new_cart_item)
-#       serializer = CartSerializer(new_cart_item,many=True)
-#       return Response({"status": "success", "data": serializer.data}, status = 200)
-#     return Response({"status": "No User Found"}, status = 200)
     
 
 
 
+current_datetime = datetime.datetime.now()
 class AddProductCart(GenericAPIView):
   serializer_class = AddCartSerializer
   renderer_classes = [UserRenderer]
   # permission_classes = [IsAuthenticated]
   def post(self,request,id):
-    queryset = Cartitems.objects.all()
+    try:  
+      user = User.objects.get(id=id)
+      product = Product.objects.get(id=request.data['product_id'])
+      quantity = int(request.data['quantity'])
+      serializer = AddCartSerializer(data=request.data)
+      serializer.is_valid(raise_exception=True)
+      if product.quantity <= 0 or product.quantity - quantity < 0:
+        return Response({'status': 'fail'})
+      existing_cart_item = Cartitems.objects.filter(user=user,product=product).first()
+      if existing_cart_item:
+        existing_cart_item.quantity += quantity
+        existing_cart_item.save()
+      else:
+        cart = Cartitems.objects.create(user=user,product=product,quantity=quantity)
+        cart_items = Cartitems.objects.filter(user_id=id).values('product','quantity')
+        serializer = AddCartSerializer(cart_items,many=True)
+      return Response({"status": "success", "data": serializer.data}, status = 200)
+    except:
+      return Response({"status": "Not Found"}, status = 400)
+
+class ViewCartProduct(GenericAPIView):
+  serializer_class = ViewCartSerializer
+  renderer_classes = [UserRenderer]
+  def get(self, request,id):
     user = User.objects.get(id=id)
-
-    print(user)
-    product = Product.objects.filter().values('id')
-    print(product)
-    quantity = int(request.data['quantity'])
-    print(quantity)
-    serializer = AddCartSerializer(data=request.data) # serializer the data
-    print(serializer)
-    serializer.is_valid(raise_exception=True) # if fields is valid
-    user = Cartitems.objects.create(product_id=product,quantity=quantity)
-    user.save()
+    cart = Cartitems.objects.filter(user=user)
+    serializer = ViewCartSerializer(cart,many=True)
     return Response({"status": "success", "data": serializer.data}, status = 200)
-    
 
 
 
 
-    
 
 
-# Cart.objects.get(product_id=product_id)
-#             Cart.quantity += quantity
-#             Cart.save()
 
-#         except:
-#             Cart.objects.create(product_id=product_id,quantity=quantity)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class GoogleSocialAuthView(GenericAPIView):
+
+    serializer_class = GoogleSocialAuthSerializer
+
+    def post(self, request):
+        """
+        POST with "auth_token"
+        Send an idtoken as from google to get user information
+        """
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = ((serializer.validated_data)['auth_token'])
+        return Response(data, status=status.HTTP_200_OK)

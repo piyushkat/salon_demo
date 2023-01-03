@@ -23,6 +23,7 @@ urlpatterns = [
     path('category/next/<int:LIMIT>', CategoryPaginatioNext.as_view(), name='categorypaginationnext'),
     path('category/previous/<int:LIMIT>', CategoryPaginationPrevious.as_view(), name='categorypaginationprev'),
     path('filter/', FilterProduct.as_view(), name='prev'),
-    # path('cart/<int:id>', CartViewSet.as_view(), name='prev'),
     path('addcart/<int:id>', AddProductCart.as_view(), name='addcart'),
+    path('viewcart/<int:id>', ViewCartProduct.as_view(), name='addcart'),
+    path('google/', GoogleSocialAuthView.as_view(),name='google'),
 ]

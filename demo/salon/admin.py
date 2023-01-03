@@ -43,5 +43,5 @@ admin.site.register(ReviewRating,ReviewRatingAdmin)
 
 
 class CartItemsAdmin(admin.ModelAdmin):
-    list_display = ('id','product','quantity')
+    list_display = ('id','user','product','quantity')
 admin.site.register(Cartitems,CartItemsAdmin)

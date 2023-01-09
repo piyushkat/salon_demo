@@ -1,5 +1,14 @@
 from django.contrib import admin
 from salon.models import *
+from import_export.admin import ImportExportModelAdmin
+
+
+
+class ViewAdmin(ImportExportModelAdmin):
+    list_display = ('Medicine','Healthcare','Dosage')
+admin.site.register(ImportExport,ViewAdmin)
+
+
 
 # Register your models here.
 class ProfileAdmin(admin.ModelAdmin):

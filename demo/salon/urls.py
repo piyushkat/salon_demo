@@ -2,8 +2,6 @@ from django.urls import path
 from salon.views import *
 
 
-
-
 urlpatterns = [
     path('signup', UserRegistrationView.as_view(), name='signup'),
     path('verifyotp', VerifyOtpForEmailVerification.as_view(), name='verifyotp'),
@@ -23,7 +21,11 @@ urlpatterns = [
     path('category/next/<int:LIMIT>', CategoryPaginatioNext.as_view(), name='categorypaginationnext'),
     path('category/previous/<int:LIMIT>', CategoryPaginationPrevious.as_view(), name='categorypaginationprev'),
     path('filter/', FilterProduct.as_view(), name='prev'),
+    
     path('addcart/<int:id>', AddProductCart.as_view(), name='addcart'),
-    path('viewcart/<int:id>', ViewCartProduct.as_view(), name='addcart'),
+    path('viewcart/<int:id>', ViewCartProduct.as_view(), name='viewcart'),
+    path('deletecart/<int:id>', DeleteCartItem.as_view(), name='deletecart'),
+    path('deletecartbyid/<int:id>', DeleteCartItemById.as_view(), name='deletecartbyid'),
+    
     path('google/', GoogleSocialAuthView.as_view(),name='google'),
 ]

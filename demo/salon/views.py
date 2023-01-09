@@ -248,7 +248,7 @@ class GetProductById(GenericAPIView):
         serializer = GetProductSerializer(item)
         return Response({"status": "success", "data": serializer.data}, status = 200)
     except:
-      return Response({"status": "Not available"}, status = 200)
+      return Response({"status": "Not available"}, status = 400)
 
 
 class ProductPaginatioNext(GenericAPIView):
@@ -362,26 +362,14 @@ class AddProductCart(GenericAPIView):
   # permission_classes = [IsAuthenticated]
   def post(self,request,id):  
     user = User.objects.get(id=id)
-    print(user)
     product = Product.objects.get(id=request.data['product_id'])
-    quantity = int(request.data['quantity'])
-    print(product.quantity <= 0 or (product.quantity - quantity) < 0)
+    quantity = int(request.data['quantity'])    
     serializer = AddCartSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    if product.quantity <= 0 or (product.quantity - quantity) < 0:
-      return Response({'status': 'fail'})
-    existing_cart_item = Cartitems.objects.get(user=user,product=product,quantity=quantity)
-    if existing_cart_item:
-      existing_cart_item.quantity += quantity
-      existing_cart_item.save()
-    else:
-      cart = Cartitems.objects.create(user=user,product=product,quantity=quantity)
-      cart_items = Cartitems.objects.filter(user_id=id).values('product','quantity')
-      serializer = AddCartSerializer(cart_items,many=True)
-    return Response({"status": "success", "data": serializer.data}, status = 200)
-    # except:
-    #   return Response({"status": "Not Found"}, status = 400)
-
+    cart = Cartitems(user=user,product=product)
+    cart.save()
+    serializer = AddCartSerializer(cart)
+    return Response({"status":"success", "data": serializer.data}, status = 200)
 
 
 class ViewCartProduct(GenericAPIView):
@@ -394,10 +382,34 @@ class ViewCartProduct(GenericAPIView):
     return Response({"status": "success", "data": serializer.data}, status = 200)
 
 
+class DeleteCartItemById(GenericAPIView):
+  serializer_class = DeleteCartSerializer
+  renderer_classes = [UserRenderer]
+  def post(self,request,id):
+    try:
+      user = User.objects.filter(id=id)
+      cart = Cartitems.objects.get(id=id).delete()
+      serializer = ViewCartSerializer(cart)
+      return Response({"status": "success", "data": serializer.data}, status = 200)
+    except:
+      return Response({"status": "Not available"}, status = 400)
+
+
+class DeleteCartItem(GenericAPIView):
+  serializer_class = DeleteCartSerializer
+  renderer_classes = [UserRenderer]
+  def post(self,request,id):
+    user = User.objects.filter(id=id)
+    cart = Cartitems.objects.all().delete()
+    serializer = DeleteCartSerializer(cart)
+    return Response({"status": "success", "data": serializer.data}, status = 200)
+  
+
+
+
 class GoogleSocialAuthView(GenericAPIView):
 
     serializer_class = GoogleSocialAuthSerializer
-
     def post(self, request):
         """
         POST with "auth_token"

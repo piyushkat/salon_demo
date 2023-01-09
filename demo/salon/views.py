@@ -367,6 +367,10 @@ class AddProductCart(GenericAPIView):
     serializer = AddCartSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     cart = Cartitems(user=user,product=product)
+    # order_items = Cartitems.objects.filter(product=product)
+    # for product in order_items:
+    #   product.quantity += 1
+    #   product.save()
     cart.save()
     serializer = AddCartSerializer(cart)
     return Response({"status":"success", "data": serializer.data}, status = 200)
@@ -403,19 +407,7 @@ class DeleteCartItem(GenericAPIView):
     cart = Cartitems.objects.all().delete()
     serializer = DeleteCartSerializer(cart)
     return Response({"status": "success", "data": serializer.data}, status = 200)
-  
 
 
 
-class GoogleSocialAuthView(GenericAPIView):
-
-    serializer_class = GoogleSocialAuthSerializer
-    def post(self, request):
-        """
-        POST with "auth_token"
-        Send an idtoken as from google to get user information
-        """
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        data = ((serializer.validated_data)['auth_token'])
-        return Response(data, status=status.HTTP_200_OK)
+# class Checko  

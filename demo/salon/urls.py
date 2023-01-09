@@ -27,5 +27,4 @@ urlpatterns = [
     path('deletecart/<int:id>', DeleteCartItem.as_view(), name='deletecart'),
     path('deletecartbyid/<int:id>', DeleteCartItemById.as_view(), name='deletecartbyid'),
     
-    path('google/', GoogleSocialAuthView.as_view(),name='google'),
 ]

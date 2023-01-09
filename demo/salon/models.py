@@ -102,9 +102,17 @@ class Cartitems(models.Model):
         return '%s %s'%(self.quantity, self.product.name)
 
 
+
+
 class ReviewRating(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,default=True)
     products = models.ForeignKey(Product,on_delete=models.CASCADE,default=True) 
     review = models.TextField(max_length=554,default=0)
     ratings = models.IntegerField(choices=ratings_level, default=None)
     created_at = models.DateTimeField(auto_now=True)
+
+
+class ImportExport(models.Model):
+    Medicine = models.CharField(max_length=1000)
+    Healthcare= models.CharField(max_length=1000)
+    Dosage = models.CharField(max_length=1000)

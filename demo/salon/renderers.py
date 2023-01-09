@@ -12,5 +12,4 @@ class UserRenderer(renderers.JSONRenderer):
       response = json.dumps({'errors':data})
     else:
       response = json.dumps(data)
-    
     return response

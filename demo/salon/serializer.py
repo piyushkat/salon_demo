@@ -150,7 +150,13 @@ class AddCartSerializer(serializers.ModelSerializer):
 class ViewCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cartitems
-        fields = ['id','price','product_id','quantity']
+        fields = ['id','product_id','quantity']
+
+
+class DeleteCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cartitems
+        fields = ['id']
 
 
 

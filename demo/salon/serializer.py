@@ -158,3 +158,7 @@ class DeleteCartSerializer(serializers.ModelSerializer):
         fields = ['id']
 
 
+class CheckoutSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CheckoutCart
+        fields = ('user','quantity','total','created_at','updated_at') 

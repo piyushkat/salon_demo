@@ -8,8 +8,6 @@ class ViewAdmin(ImportExportModelAdmin):
     list_display = ('Medicine','Healthcare','Dosage')
 admin.site.register(ImportExport,ViewAdmin)
 
-
-
 # Register your models here.
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'auth_token', 'is_verified',
@@ -54,3 +52,9 @@ admin.site.register(ReviewRating,ReviewRatingAdmin)
 class CartItemsAdmin(admin.ModelAdmin):
     list_display = ('id','user','product','quantity')
 admin.site.register(Cartitems,CartItemsAdmin)
+
+
+
+class CheckoutAdmin(admin.ModelAdmin):
+    list_display = ('user','cart','quantity','created_at','updated_at')
+admin.site.register(CheckoutCart,CheckoutAdmin)

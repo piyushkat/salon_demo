@@ -354,26 +354,25 @@ class test(GenericAPIView):
     return Response({"status": "success"}, status = 200)
 
 
-
-current_datetime = datetime.datetime.now()
 class AddProductCart(GenericAPIView):
   serializer_class = AddCartSerializer
   renderer_classes = [UserRenderer]
   # permission_classes = [IsAuthenticated]
-  def post(self,request,id):  
-    user = User.objects.get(id=id)
-    product = Product.objects.get(id=request.data['product_id'])
-    quantity = int(request.data['quantity'])    
-    serializer = AddCartSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    cart = Cartitems(user=user,product=product)
-    # order_items = Cartitems.objects.filter(product=product)
-    # for product in order_items:
-    #   product.quantity += 1
-    #   product.save()
-    cart.save()
-    serializer = AddCartSerializer(cart)
-    return Response({"status":"success", "data": serializer.data}, status = 200)
+  def post(self,request,id): 
+    try:
+      user = User.objects.get(id=id)
+      product = Product.objects.get(id=request.data['product_id'])
+      quantity = int(request.data['quantity'])   
+      try:
+        cart=Cartitems.objects.get(user=user,product=product)
+        cart.quantity += quantity
+      except:
+        cart=Cartitems.objects.create(user=user,product=product,quantity=quantity,created_at=datetime.datetime.now)
+      cart.save()
+      serializer = AddCartSerializer(cart)
+      return Response({"status":"success", "data": serializer.data}, status = 200)
+    except:
+      return Response({"status":"Not Found"}, status = 400)
 
 
 class ViewCartProduct(GenericAPIView):
@@ -409,5 +408,21 @@ class DeleteCartItem(GenericAPIView):
     return Response({"status": "success", "data": serializer.data}, status = 200)
 
 
+class CheckoutView(GenericAPIView):
+  serializer_class = CheckoutSerializer
+  renderer_classes = [UserRenderer]
+  def post(self,request,id):
+    user = User.objects.get(id=id)
+    cart_items = Cartitems.objects.filter(user=user)
+    cart = Cartitems.objects.get(id=id) 
+    dict = {}
+    for cart in cart_items:
+      total = cart.quantity * cart.product.price
+    res  = CheckoutSerializer(dict, many=True)
+    dict[res] = total
+    serializer = CheckoutSerializer(cart_items,many=True) 
 
-# class Checko  
+    return Response({"status": "success", "data": serializer.data}, status = 200)
+
+
+    

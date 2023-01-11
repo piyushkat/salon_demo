@@ -165,3 +165,20 @@ class CheckoutSerializer(serializers.ModelSerializer):
     class Meta:
         model = CheckoutCart
         fields = ('user','quantity','total') 
+
+
+class MembershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Membership
+        fields = ('id','slug','membership_type','price')
+
+
+class UserMembershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserMembership
+        fields = ('id','user','membership')
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    model = Subscription
+    fields  = ('id','user_membership','active')

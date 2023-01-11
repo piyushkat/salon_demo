@@ -58,3 +58,18 @@ admin.site.register(Cartitems,CartItemsAdmin)
 class CheckoutAdmin(admin.ModelAdmin):
     list_display = ('user','cart','quantity','created_at','updated_at')
 admin.site.register(CheckoutCart,CheckoutAdmin)
+
+
+class MembershipAdmin(admin.ModelAdmin):
+    list_display = ('slug','membership_type','price')
+admin.site.register(Membership,MembershipAdmin)
+
+
+class UserMembershipAdmin(admin.ModelAdmin):
+    list_display = ('user','membership')
+admin.site.register(UserMembership,UserMembershipAdmin)
+
+
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('user_membership','active')
+admin.site.register(Subscription,SubscriptionAdmin)

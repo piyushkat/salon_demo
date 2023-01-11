@@ -13,7 +13,9 @@ from rest_framework.permissions import IsAuthenticated
 from salon.models import *
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
-
+import stripe
+from django.conf import settings
+from django.http import HttpResponse
 
 
 env = environ.Env()
@@ -237,12 +239,10 @@ class DeleteUserProfile(GenericAPIView):
   def delete(self, request,id):
     try:
       user = User.objects.get(id=id) 
-      print(user)
       user.delete()
       return Response({"Msg":"User Deleted Successfully"},status=200)
     except:
       return Response({"status":"User Not Found"}, status = 400)
-
 
 
 class GetAllProduct(GenericAPIView):
@@ -433,16 +433,51 @@ class DeleteCartItem(GenericAPIView):
 
 class CheckoutView(GenericAPIView):
   serializer_class = CheckoutSerializer
-  renderer_classes = [UserRenderer]
   def post(self,request,id):
     user = User.objects.get(id=id)
     cart_items = Cartitems.objects.filter(user=user)
-    cart = Cartitems.objects.get(id=id)
+    # cart = Cartitems.objects.get(id=id)
     dict = {}
-    for cart in cart_items:
-      total = cart.quantity * cart.product.price
-      print(total)
-    res = CheckoutSerializer(dict,many=True)
-    dict[total] = res
-    serializer = CheckoutSerializer(cart_items,many=True)
-    return Response({"status": "success", "data": serializer.data}, status = 200)
+    lst = []
+    for i,cart in enumerate(cart_items):
+      total = cart.quantity * cart.product.price 
+      cart_val = Cartitems.objects.filter(user=user).values()
+      lst.append(cart_val)
+      lst.append(total)
+      dict[i] = lst
+    return Response({"status": "success","data": lst}, status = 200)
+
+
+class AllMembership(GenericAPIView):
+  serializer_class = MembershipSerializer
+  renderer_classes = [UserRenderer]
+  def get(self,request):
+    membership = Membership.objects.all()
+    serializer = MembershipSerializer(membership,many=True)
+    return Response({'msg':"success","data":serializer.data}, status = 200)
+
+
+date = datetime.datetime.now()
+end = datetime.timedelta(days=30)
+
+class UserMembershipView(GenericAPIView):
+  serializer_class = UserMembershipSerializer
+  # renderer_classes = [UserRenderer]
+  # permission_classes = [IsAuthenticated]
+  def post(self,request,id):
+    if not self.request.user.is_authenticated:
+      # chck the user is authenticated or not.
+      return Response({"msg":"No user Found"})
+    user = self.request.user
+    membership = Membership.objects.get(id=id)
+    member = UserMembership.objects.create(user=user,membership=membership,start_date = date,end_date=end)
+    member.save()
+    serializer = UserMembershipSerializer(member,many=True)
+    return Response({'msg':"success"}, status = 200)
+    # token = request.POST['stripeToken']
+
+    # # print(token)
+    # stripe.api_key = settings.STRIPE_SECRET_KEY
+    # print(stripe.api_key)
+    # user = customer = stripe.Customer.create(description='test', source=token)
+    # charge = stripe.Charge.create(user=user,membership=membership,currency='inr',source = token,description="membership")

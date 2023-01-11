@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import random
+from django.utils.text import slugify
 
 
 severity_level = (
@@ -23,6 +24,13 @@ ratings_level = (
     (4.5,4.5),
     (5,5),
 )
+
+
+MEMBERSHIP_CHOICES = (
+('Premium', 'pre'),
+('Free', 'free')
+)
+
 
 # Create your models here.
 class Profile(models.Model):
@@ -68,7 +76,6 @@ class Product(models.Model):
     # :return:
     # """
         self.price = int(self.actual_price) + int((int(self.actual_price) * int(self.margin)) / 100)
-
         if int(self.price) < 100:
             self.price_before_disc = int(self.price) + random.randint(10, 50)
         elif 100 < int(self.price) < 1000:
@@ -93,7 +100,6 @@ class Cartitems(models.Model):
     quantity = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
-
     def __str__(self):
         return '%s %s'%(self.quantity, self.product.name)
 
@@ -107,6 +113,31 @@ class CheckoutCart(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now=True)
 
+ 
+class Membership(models.Model):
+    slug = models.SlugField(null=True, blank=True)
+    membership_type = models.CharField(choices=MEMBERSHIP_CHOICES, default='Free',max_length=30)
+    price = models.DecimalField(decimal_places=False,default=0,max_digits=7)
+    def save(self,*args,**kwargs):
+        self.slug =slugify(self.membership_type)
+        super(Membership,self).save(*args,**kwargs)
+
+
+class UserMembership(models.Model):
+    user = models.OneToOneField(User,related_name='user_membership', on_delete=models.CASCADE)
+    membership = models.ForeignKey(Membership, related_name='user_membership', on_delete=models.SET_NULL, null=True)
+    start_date = models.DateTimeField(auto_created=False)
+    end_date = models.DateTimeField(auto_created=False)
+
+    def __str__(self):
+       return self.user.username
+
+
+class Subscription(models.Model):
+    user_membership = models.ForeignKey(UserMembership, related_name='subscription', on_delete=models.CASCADE)                                
+    active = models.BooleanField(default=True)
+    def __str__(self):
+      return self.user_membership.user.username
 
 
 class ReviewRating(models.Model):

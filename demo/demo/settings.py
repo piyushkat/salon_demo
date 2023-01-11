@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'django_filters',
-    'import_export'
+    'import_export',
+    # 'subscriptions',
 ]
 
 MIDDLEWARE = [
@@ -212,6 +213,18 @@ REST_FRAMEWORK = {
 }
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+    'rest_framework.permissions.AllowAny',
+],
+}
+# DFS_CURRENCY_LOCALE = 'en_in'
+# # DFS_BASE_TEMPLATE = 'base.html'
+# DFS_SUBSCRIBE_VIEW = custom.views.CustomSubscriptionView
 
 STRIPE_SECRET_KEY = "sk_test_51MOfjLSCTP4E2VxEdAbEsRM61rIalJeQB4uj34AftYZhuPDe7AF3j7SiCvqYiMjvXPLMB1i3qwYvhx9B1SyKaMwW00fQixKZJe"
 STRIPE_PUBLISHABLE_KEY = "pk_test_51MOfjLSCTP4E2VxEbdTtgGOskmOWTNMYUnQYWLhH1BnltP20Tbl6eg3EVn8Mr395D1IgM8ZYlLEJtXFDSNpgDWGf00psid7HTf"

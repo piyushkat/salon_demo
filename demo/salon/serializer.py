@@ -9,7 +9,10 @@ from salon.utils import Util
 
 
 
-
+class UserUpdateProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name')
 
 
 
@@ -161,4 +164,4 @@ class DeleteCartSerializer(serializers.ModelSerializer):
 class CheckoutSerializer(serializers.ModelSerializer):
     class Meta:
         model = CheckoutCart
-        fields = ('user','quantity','total','created_at','updated_at') 
+        fields = ('user','quantity','total') 

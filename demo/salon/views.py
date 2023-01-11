@@ -1,5 +1,5 @@
-import datetime
 import environ
+import datetime
 from rest_framework.response import Response
 from salon.serializer import *
 from django.core.mail import send_mail
@@ -11,13 +11,9 @@ from salon.renderers import UserRenderer
 from django.contrib.auth.hashers import check_password,make_password
 from rest_framework.permissions import IsAuthenticated
 from salon.models import *
-from rest_framework import generics,filters
 from django_filters.rest_framework import DjangoFilterBackend
-from django_filters import rest_framework as filters
-from django_filters import FilterSet
 from rest_framework.filters import SearchFilter,OrderingFilter
 
-from rest_framework import viewsets, status
 
 
 env = environ.Env()
@@ -222,6 +218,33 @@ class UserChangePasswordView(GenericAPIView):
     return Response({'msg':'Old Password entered incorrectly '}, status=403)
 
 
+class UpdateUserProfile(GenericAPIView):
+  serializer_class = UserUpdateProfileSerializer
+  renderer_classes = [UserRenderer]
+  def put(self, request, id):
+    try:
+      user = User.objects.get(id=id)
+      serializer = UserUpdateProfileSerializer(user, data=request.data)
+      serializer.is_valid()
+      serializer.save()
+      return Response({"status":"success", "data": serializer.data}, status = 200)
+    except:
+      return Response({"status":"User Not Found"}, status = 400)
+
+
+class DeleteUserProfile(GenericAPIView):
+  renderer_classes = [UserRenderer]
+  def delete(self, request,id):
+    try:
+      user = User.objects.get(id=id) 
+      print(user)
+      user.delete()
+      return Response({"Msg":"User Deleted Successfully"},status=200)
+    except:
+      return Response({"status":"User Not Found"}, status = 400)
+
+
+
 class GetAllProduct(GenericAPIView):
   serializer_class = ProductSerializer
   renderer_classes = [UserRenderer]
@@ -414,15 +437,12 @@ class CheckoutView(GenericAPIView):
   def post(self,request,id):
     user = User.objects.get(id=id)
     cart_items = Cartitems.objects.filter(user=user)
-    cart = Cartitems.objects.get(id=id) 
+    cart = Cartitems.objects.get(id=id)
     dict = {}
     for cart in cart_items:
       total = cart.quantity * cart.product.price
-    res  = CheckoutSerializer(dict, many=True)
-    dict[res] = total
-    serializer = CheckoutSerializer(cart_items,many=True) 
-
+      print(total)
+    res = CheckoutSerializer(dict,many=True)
+    dict[total] = res
+    serializer = CheckoutSerializer(cart_items,many=True)
     return Response({"status": "success", "data": serializer.data}, status = 200)
-
-
-    

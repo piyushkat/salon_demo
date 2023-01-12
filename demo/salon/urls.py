@@ -32,5 +32,9 @@ urlpatterns = [
     
     path('membership',AllMembership.as_view(), name='membershipall'),
     path('usermembership/<int:id>',UserMembershipView.as_view(), name='membershipuser'),
+    path('getusermembership',GetUserMembership.as_view(), name='getmembershipuser'),
+    
+    path('reviewrating/<int:id>',ReviewRatingView.as_view(), name='reviewratingview'),
+    path('getreviewrating/<int:id>',GetReviewRating.as_view(), name='getreviewratingview'),
     
 ]

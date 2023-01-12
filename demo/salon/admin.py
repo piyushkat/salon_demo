@@ -8,11 +8,11 @@ class ViewAdmin(ImportExportModelAdmin):
     list_display = ('Medicine','Healthcare','Dosage')
 admin.site.register(ImportExport,ViewAdmin)
 
+
 # Register your models here.
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'auth_token', 'is_verified',
                     'is_admin', 'created_at')
-
 
 admin.site.register(Profile, ProfileAdmin)
 
@@ -31,28 +31,14 @@ class CategoryAdmin(admin.ModelAdmin):
 admin.site.register(Category,CategoryAdmin)
 
 
-# class CardAdmin(admin.ModelAdmin):
-#     list_display = ('user','product','quantity')
-# admin.site.register(Cart,CardAdmin)
-
-
-
-
 class ReviewRatingAdmin(admin.ModelAdmin):
-    list_display = ('review','ratings')
+    list_display = ('user','products','review','ratings','created_at')
 admin.site.register(ReviewRating,ReviewRatingAdmin)
-
-
-# class CartAdmin(admin.ModelAdmin):
-#     list_display = ('user','created_at','updated_at')
-# admin.site.register(Cart,CartAdmin)
-
 
 
 class CartItemsAdmin(admin.ModelAdmin):
     list_display = ('id','user','product','quantity')
 admin.site.register(Cartitems,CartItemsAdmin)
-
 
 
 class CheckoutAdmin(admin.ModelAdmin):
@@ -66,10 +52,10 @@ admin.site.register(Membership,MembershipAdmin)
 
 
 class UserMembershipAdmin(admin.ModelAdmin):
-    list_display = ('user','membership')
+    list_display = ('user','membership','active')
 admin.site.register(UserMembership,UserMembershipAdmin)
 
 
-class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('user_membership','active')
-admin.site.register(Subscription,SubscriptionAdmin)
+# class SubscriptionAdmin(admin.ModelAdmin):
+#     list_display = ('user_membership','active')
+# admin.site.register(Subscription,SubscriptionAdmin)

@@ -93,6 +93,11 @@ LOGIN_REDIRECT_URL = 'getallproduct'
 LOGOUT_REDIRECT_URL = '/'
 
 
+# If you don't have an email server running yet add this line to avoid any possible errors.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

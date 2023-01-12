@@ -1,5 +1,6 @@
 import environ
 import datetime
+from datetime import datetime, timedelta
 from rest_framework.response import Response
 from salon.serializer import *
 from django.core.mail import send_mail
@@ -118,9 +119,9 @@ class VerifyOtpForEmailVerification(GenericAPIView):
     res = Profile.objects.filter(user_id=user_id).values()
     if res:  #checks if there is any user with this id
       otp_time=res[0]['created_at']
-      time_change = datetime.timedelta(days=1)
+      time_change = timedelta(days=1)
       new_time=otp_time+time_change
-      now = datetime.datetime.now(timezone.utc)
+      now = datetime.now(timezone.utc)
       if new_time>= now:
           if str(res[0]['user_id'])==user_id and res[0]['auth_token']==auth_token:
             res.update(is_verified=True)
@@ -128,9 +129,6 @@ class VerifyOtpForEmailVerification(GenericAPIView):
           return Response({"status": "Otp Incorrect"}, status = 400)
       return Response({"status": "Verification OTP Expired"}, status = 400)
     return Response({"status": "No user found"}, status = 400)
-
-
-
 
 
 # user login view
@@ -436,11 +434,10 @@ class CheckoutView(GenericAPIView):
   def post(self,request,id):
     user = User.objects.get(id=id)
     cart_items = Cartitems.objects.filter(user=user)
-    # cart = Cartitems.objects.get(id=id)
     dict = {}
     lst = []
     for i,cart in enumerate(cart_items):
-      total = cart.quantity * cart.product.price 
+      total = cart.quantity * cart.product.price
       cart_val = Cartitems.objects.filter(user=user).values()
       lst.append(cart_val)
       lst.append(total)
@@ -457,27 +454,60 @@ class AllMembership(GenericAPIView):
     return Response({'msg':"success","data":serializer.data}, status = 200)
 
 
-date = datetime.datetime.now()
-end = datetime.timedelta(days=30)
-
 class UserMembershipView(GenericAPIView):
   serializer_class = UserMembershipSerializer
-  # renderer_classes = [UserRenderer]
-  # permission_classes = [IsAuthenticated]
+  renderer_classes = [UserRenderer]
   def post(self,request,id):
     if not self.request.user.is_authenticated:
       # chck the user is authenticated or not.
       return Response({"msg":"No user Found"})
-    user = self.request.user
-    membership = Membership.objects.get(id=id)
-    member = UserMembership.objects.create(user=user,membership=membership,start_date = date,end_date=end)
-    member.save()
-    serializer = UserMembershipSerializer(member,many=True)
-    return Response({'msg':"success"}, status = 200)
-    # token = request.POST['stripeToken']
+    try:
+      user = self.request.user
+      start_date = datetime.today()
+      end_date = start_date + timedelta(days=30)
+      membership = Membership.objects.get(id=id)
+      member = UserMembership.objects.create(user=user,membership=membership,start_date=start_date,end_date=end_date,active=True)
+      serializer = UserMembershipSerializer(member)
+      return Response({'msg':"success","data":serializer.data}, status = 200)
+    except:
+      return Response({"status": "Already Member"}, status = 400)
 
-    # # print(token)
-    # stripe.api_key = settings.STRIPE_SECRET_KEY
-    # print(stripe.api_key)
-    # user = customer = stripe.Customer.create(description='test', source=token)
-    # charge = stripe.Charge.create(user=user,membership=membership,currency='inr',source = token,description="membership")
+
+class GetUserMembership(GenericAPIView):
+  serializer_class = UserMembershipSerializer
+  renderer_classes = [UserRenderer]
+  def get(self,request):
+    if not self.request.user.is_authenticated:
+      return Response({"msg":"No user Found"})
+    try:
+      user = self.request.user
+      user_membership = UserMembership.objects.filter(user=user)
+      serializer = UserMembershipSerializer(user_membership,many=True)
+      return Response({'msg':"success","data":serializer.data}, status = 200)
+    except:
+      return Response({"status": "Not subscribed Our Site"}, status = 400)
+
+  
+class ReviewRatingView(GenericAPIView):
+  serializer_class = ReviewRatingSerializer
+  renderer_classes = [UserRenderer]
+  def post(self,request,id):
+    now = datetime.now()
+    user = self.request.user
+    products = Product.objects.get(id=id)
+    review = request.data.get('review')
+    ratings = request.data.get('ratings')
+    review_rating = ReviewRating.objects.create(user=user,products=products,review=review,ratings=ratings,created_at=now)
+    serializer = ReviewRatingSerializer(review_rating)
+    return Response({'msg':"success","data":serializer.data}, status = 200)
+
+
+class GetReviewRating(GenericAPIView):
+  serializer_class = ReviewRatingSerializer
+  renderer_classes = [UserRenderer]
+  def get(self,request,id):
+    user = self.request.user
+    res = ReviewRating.objects.filter(user=user)
+    serializer = ReviewRatingSerializer(res,many=True)
+    return Response({'msg':"success","data":serializer.data}, status = 200)
+

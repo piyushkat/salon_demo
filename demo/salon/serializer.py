@@ -112,9 +112,6 @@ class VerifyOtpSerializer(serializers.ModelSerializer):
         fields = ['user_id','auth_token']
 
 
-
-
-
 class GetProductSerializer(serializers.ModelSerializer):
     # We are writing this becoz we need confirm password field in our Registratin Request
     class Meta:
@@ -139,8 +136,6 @@ class ReviewRatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReviewRating
         fields = ('review','ratings')
-
-
 
 
 class AddCartSerializer(serializers.ModelSerializer):
@@ -176,9 +171,10 @@ class MembershipSerializer(serializers.ModelSerializer):
 class UserMembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserMembership
-        fields = ('id','user','membership')
+        fields = ('id','user','membership','active')
 
 
-class SubscriptionSerializer(serializers.ModelSerializer):
-    model = Subscription
-    fields  = ('id','user_membership','active')
+class ReviewRatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewRating
+        fields = ('id','user','products','review','ratings','created_at')
